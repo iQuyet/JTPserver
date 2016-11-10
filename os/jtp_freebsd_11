@@ -1,0 +1,25 @@
+#!/bin/sh
+# Author: Quyet Ng.
+# Website: quyet.tk
+# Created: 03:15PM November 08, 2016 (VN time)
+#
+# OS
+echo " OS: FreeBSD 11."
+# Install
+echo "------ Update, Install base ------"
+portsnap fetch extract
+cd /usr/ports/ports-mgmt/pkg && make reinstall clean
+cd /usr/ports/textproc/gsed/ && make install clean
+echo "------ Install OpenJDK ------"
+cd /usr/ports/java/openjdk8-jre/ && make install clean
+#cd /usr/ports/java/openjdk8/ && make install clean
+echo "------ Install Tomcat, OpenSSL ------"
+cd /usr/ports/www/tomcat8/ && make install clean
+cd /usr/ports/security/openssl/ && make install clean		# In FreeBSD, mod_ssl module is enabled by default in both the package and the port.
+echo "------ Configuaration Tomcat ------"
+echo "------ Install PostgreSQL ------"
+cd /usr/ports/databases/postgresql95-server/ && make install clean
+echo "------ Configuaration PostgreSQL ------"
+#sudo -u postgres psql postgres		# login to PostgreSQL
+cd /usr/local/apache-tomcat-8.0/lib/
+wget https://jdbc.postgresql.org/download/postgresql-9.4.1208.jar

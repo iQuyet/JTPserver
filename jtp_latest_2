@@ -1,0 +1,78 @@
+#!/bin/sh
+##############################################################
+# This script help you to install and configure a Server with:
+# 	- Apache
+# 	- MariaDB
+# 	- PHP
+# Author: Quyet Ng.
+# Website: quyet.tk
+# Created: 03:15PM November 08, 2016 (VN time)
+##############################################################
+#
+# Detect the OS TYPE from a Shell script
+echo "------ Detect the OS TYPE ------"
+readonly base_file=`readlink -f "$0"`
+readonly base_path=`dirname $base_file`
+adddate() {
+    while IFS= read -r line; do
+        echo "$(date) $line"
+    done
+}
+. "$base_path/lib/platform"
+if [ $platform == 'linux' ]; then		# Don't use "[[...]]", in FreeBSD using "if [...]; then"
+	echo " platform: Linux."
+	# Detect the LINUX DISTRO from a Shell script
+	echo ""------ Detect the LINUX DISTRO. "------"
+	if [ -f /etc/centos-release ] ; then
+		. "$base_path/os/jtp_centos_latest" | adddate >>$base_path/install.log
+	elif [ -f /etc/redhat-release ] ; then
+		echo " OS: RedHat."
+		echo " This OS does't Support by this Script. Exit."
+	elif [ -f /etc/ubuntu_version ] ; then
+		echo " OS: Ubuntu."
+		echo " This OS does't Support by this Script. Exit."
+	elif [ -f /etc/debian_version ] ; then
+		. "$base_path/os/jtp_debian_latest" | adddate >>$base_path/install.log
+	elif [ -f /etc/SuSE-release ] ; then
+		echo " OS: SuSe."
+		echo " This OS does't Support by this Script. Exit."
+	elif [ -f /etc/mandrake-release ] ; then
+		echo " OS: Mandrake."
+		echo " This OS does't Support by this Script. Exit."
+	else
+		# Unknown.
+		echo " Unknown OS."
+		echo " This OS does't Support by this Script. Exit."
+	fi
+elif [ $platform == 'freebsd' ]; then
+	echo " platform: FreeBSD."
+	. "$base_path/os/jtp_freebsd_latest" | adddate >>$base_path/install.log
+
+elif [ "$platform" == "darwin"* ]; then
+	# Mac OSX
+	echo " platform: darwin."
+	. "$base_path/os/jtp_osx_latest" | adddate >>$base_path/install.log
+elif [ "$platform" == "cygwin" ]; then
+	# POSIX compatibility layer and Linux environment emulation for Windows
+	echo " platform: cygwin."
+	echo " OS: POSIX compatibility layer and Linux environment emulation for Windows."
+	echo " This platform does't Support by this Script. Exit."
+elif [ "$platform" == "msys" ]; then
+	# Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+	echo " platform: msys."
+	echo " OS: Lightweight shell and GNU utilities compiled for Windows (part of MinGW)."
+	echo " This platform does't Support by this Script. Exit."
+elif [ "$platform" == "win32" ]; then
+	# I'm not sure this can happen.
+	echo " platform: win32."
+	echo " OS: Windows."
+	echo " This platform does't Support by this Script. Exit."
+elif [ "$platform" == "freebsd"* ]; then
+	# ...
+	echo " platform: FreeBSD."
+	. "$base_path/os/jtp_freebsd_latest" | adddate >>$base_path/install.log
+else
+	# Unknown.
+	echo " Unknown platform. Exit."
+	echo " This platform does't Support by this Script. Exit."
+fi

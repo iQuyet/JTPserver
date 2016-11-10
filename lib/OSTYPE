@@ -1,0 +1,6 @@
+#!/bin/sh
+# Author: Quyet Ng.
+# Website: quyet.tk
+# Created: 03:15PM November 08, 2016 (VN time)
+#
+# Detect the Linux OS from a Shell script

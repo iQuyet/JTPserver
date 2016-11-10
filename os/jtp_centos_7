@@ -1,0 +1,74 @@
+#!/bin/sh
+# Author: Quyet Ng.
+# Website: quyet.tk
+# Created: 03:15PM November 08, 2016 (VN time)
+#
+# OS
+echo " OS: CentOS 7."
+# Install
+echo "------ Update, Install base ------"
+yum -y update
+yum -y install epel-release
+yum -y install sed
+yum -y install ed
+echo "------ Install OpenJDK ------"
+yum -y install jre
+#yum -y install jdk
+echo "------ Install Tomcat, OpenSSL ------"
+cd /tmp
+wget http://www.us.apache.org/dist/tomcat/tomcat-8/v8.0.36/bin/apache-tomcat-8.0.36.tar.gz
+tar -zxvf apache-tomcat-8.0.36.tar.gz
+mv apache-tomcat-8.0.36 /usr/local/apache-tomcat-8.0
+rm -f apache-tomcat-8.0.36.tar.gz
+cd /usr/local/apache-tomcat-8.0
+./bin/startup.sh
+yum -y install openssl mod_ssl
+systemctl disable httpd.service
+systemctl stop httpd.service
+echo "------ Configuaration Tomcat ------"
+rm -f /etc/init.d/tomcat && touch /etc/init.d/tomcat
+for f in '/etc/init.d/tomcat'
+do
+  if [ -f $f -a -r $f ]; then
+    echo -e '
+#!/bin/bash
+# description: Tomcat Start Stop Restart
+# processname: tomcat
+# chkconfig: 234 20 80
+JAVA_HOME=/usr
+export JAVA_HOME
+PATH=$JAVA_HOME/bin:$PATH
+export PATH
+CATALINA_HOME=/usr/local/apache-tomcat-8.0
+
+case $1 in
+start)
+sh $CATALINA_HOME/bin/startup.sh
+;;
+stop)
+sh $CATALINA_HOME/bin/shutdown.sh
+;;
+restart)
+sh $CATALINA_HOME/bin/shutdown.sh
+sh $CATALINA_HOME/bin/startup.sh
+;;
+esac
+exit 0
+
+    ' >> /etc/init.d/tomcat
+  else
+    echo "Error: Cannot read $f"
+  fi
+done
+chmod 755 /etc/init.d/tomcat
+chkconfig --add tomcat
+chkconfig --level 234 tomcat on
+systemctl restart tomcat.service
+echo "------ Install PostgreSQL ------"
+yum -y install postgresql-server
+systemctl enable postgresql.service
+service postgresql initdb
+systemctl start postgresql.service
+echo "------ Configuaration PostgreSQL ------"
+cd /usr/local/apache-tomcat-8.0/lib/
+wget https://jdbc.postgresql.org/download/postgresql-9.4.1208.jar
